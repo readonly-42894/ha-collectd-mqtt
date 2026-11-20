@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from typing import Any
 
@@ -108,6 +109,47 @@ async def test_unknown_type_keeps_numbers(
 
     assert _state(hass, "sensor.router_mystery_widget").state == "1.0"
     assert _state(hass, "sensor.router_mystery_widget_value_1").state == "2.0"
+
+
+async def test_unknown_type_is_logged_once(
+    hass: HomeAssistant, mqtt, make_entry, caplog: pytest.LogCaptureFixture
+) -> None:
+    """An unknown type is reported once instead of on every message."""
+    caplog.set_level(
+        logging.DEBUG, logger="custom_components.collectd_mqtt.coordinator"
+    )
+    await _setup(hass, make_entry())
+    mqtt.deliver("collectd/router/mystery/mystery-widget", "1763600000.123:1.0")
+    mqtt.deliver("collectd/router/mystery2/mystery-widget", "1763600010.123:2.0")
+    await _flush(hass)
+
+    logged = [
+        record for record in caplog.records if "Type mystery" in record.getMessage()
+    ]
+    assert len(logged) == 1
+    assert logged[0].levelno == logging.DEBUG
+
+
+async def test_value_count_mismatch_is_logged_once(
+    hass: HomeAssistant, mqtt, make_entry, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A value list that disagrees with types.db is reported once per type."""
+    caplog.set_level(logging.WARNING, logger="custom_components.collectd_mqtt")
+    await _setup(hass, make_entry())
+    mqtt.deliver("collectd/router/load/load", "1763600000.123:1.0")
+    await _flush(hass)
+    mqtt.deliver("collectd/router/load/load", "1763600010.123:2.0")
+    await hass.async_block_till_done()
+
+    logged = [
+        record
+        for record in caplog.records
+        if record.levelno == logging.WARNING
+        and record.name == "custom_components.collectd_mqtt.coordinator"
+    ]
+    assert len(logged) == 1
+    assert "type load defines 3" in logged[0].getMessage()
+    assert _state(hass, "sensor.router_load_shortterm").state == "2.0"
 
 
 async def test_include_and_exclude_filters(

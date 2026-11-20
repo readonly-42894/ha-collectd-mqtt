@@ -158,7 +158,7 @@ df-*/df_complex-*        # 所有文件系统用量
 | 电学与频率 | `voltage`, `current`, `power`, `energy_wh`, `frequency` | V / A / W / Wh / Hz |
 | 湿度 | `humidity` | `%` / humidity |
 
-未收录的类型仍然会创建实体，只是不带单位。`StoreRates` 关闭时，累计型指标改用原始单位并标记为 `total_increasing`，便于长期统计。
+未收录的类型仍然会创建实体，只是不带单位，并且只在首次出现时记一条 debug 日志。`StoreRates` 关闭时，累计型指标改用原始单位并标记为 `total_increasing`，便于长期统计。
 
 > `cpu` 类型在 collectd 里是 jiffies/s，不是百分比；百分比指标需要 collectd 的 `cpu` 插件打开 `ReportPercent`，此时类型为 `percent`。
 

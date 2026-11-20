@@ -159,12 +159,32 @@ class CollectdCollector:
 
         parsed = parse_payload(message.payload)
         if parsed is None:
-            self._warn_once(
+            self._log_once(
                 f"payload:{message.topic}",
+                logging.WARNING,
                 "Ignoring a non-plain payload on topic %s",
                 message.topic,
             )
             return
+
+        definition = self._types.get(key.type)
+        if definition is None:
+            self._log_once(
+                f"type:{key.type}",
+                logging.DEBUG,
+                "Type %s is missing from types.db, using generic data source names",
+                key.type,
+            )
+        elif len(definition.sources) != len(parsed.values):
+            self._log_once(
+                f"values:{key.type}",
+                logging.WARNING,
+                "%s published %d values but type %s defines %d",
+                message.topic,
+                len(parsed.values),
+                key.type,
+                len(definition.sources),
+            )
 
         now = dt_util.utcnow()
         for index, value in enumerate(parsed.values):
@@ -297,9 +317,9 @@ class CollectdCollector:
             if last_seen is not None and last_seen < cutoff:
                 entity.mark_unavailable()
 
-    def _warn_once(self, key: str, message: str, *args: Any) -> None:
-        """Log a repeated problem only once per topic or pattern."""
+    def _log_once(self, key: str, level: int, message: str, *args: Any) -> None:
+        """Log a repeated problem only once per type, topic or pattern."""
         if key in self._warned:
             return
         self._warned.add(key)
-        _LOGGER.warning(message, *args)
+        _LOGGER.log(level, message, *args)
