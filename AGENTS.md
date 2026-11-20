@@ -65,6 +65,8 @@ uv run ruff format --check .
 ```
 
 - 改动提交前必须运行 `pytest`；改动解析、命名、过滤或单位画像时补充对应单元测试。
+- CI 的触发条件覆盖 `push` 到 main 与 pull request，镜像仓库直接更新 main 时也要跑。
+- CI 变红是待修复的信号：修代码或修仓库设置，不要靠收窄触发条件、删检查项或 `ignore` 来让流水线变绿。
 - 测试不得访问真实 MQTT broker：`tests/conftest.py` 打桩 `custom_components.collectd_mqtt.transport`。
 - 不要 mock Home Assistant 内部对象绕过契约；配置项、实体注册表与实体状态使用真实实现。
 - 不提交 `.venv/`、`.cache/`、`__pycache__/`、`.pytest_cache/`、`.ruff_cache/` 或测试生成的临时文件。
