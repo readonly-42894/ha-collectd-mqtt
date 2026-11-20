@@ -56,11 +56,17 @@ class CollectdSensor(SensorEntity):
         """Apply a newer value and write it to the state machine."""
         self._attr_native_value = sample.value
         self._attr_available = True
-        self.async_write_ha_state()
+        self._write_state()
 
     def mark_unavailable(self) -> None:
         """Mark the sensor unavailable without discarding its value."""
         if not self._attr_available:
             return
         self._attr_available = False
+        self._write_state()
+
+    def _write_state(self) -> None:
+        """Write state once Home Assistant has registered the entity."""
+        if self.entity_id is None:
+            return
         self.async_write_ha_state()
