@@ -1,0 +1,44 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
+      - name: Install ruff
+        run: pip install ruff==0.17.6
+      - name: Check lint rules
+        run: ruff check .
+      - name: Check formatting
+        run: ruff format --check .
+
+  pytest:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
+      - name: Install test dependencies
+        run: pip install -r tests/requirements.txt
+      - name: Run tests
+        run: pytest -q
