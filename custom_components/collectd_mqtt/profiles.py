@@ -9,11 +9,15 @@ default: Home Assistant validates device classes against their unit sets.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
 from .types_db import CUMULATIVE_DSTYPES
 
 STATE_MEASUREMENT = "measurement"
 STATE_TOTAL_INCREASING = "total_increasing"
+
+VALUE_NUMBER = "number"
+VALUE_UPTIME = "uptime"
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +29,7 @@ class MetricProfile:
     rate_unit: str | None = None
     rate_device_class: str | None = None
     precision: int | None = None
+    value_kind: str = VALUE_NUMBER
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,8 +38,9 @@ class ResolvedProfile:
 
     unit: str | None
     device_class: str | None
-    state_class: str
+    state_class: str | None
     precision: int | None
+    value_kind: str
 
 
 def _profile(
@@ -44,6 +50,7 @@ def _profile(
     rate_unit: str | None = None,
     rate_device_class: str | None = None,
     precision: int | None = None,
+    value_kind: str = VALUE_NUMBER,
 ) -> MetricProfile:
     return MetricProfile(
         unit=unit,
@@ -51,6 +58,7 @@ def _profile(
         rate_unit=rate_unit,
         rate_device_class=rate_device_class,
         precision=precision,
+        value_kind=value_kind,
     )
 
 
@@ -191,7 +199,7 @@ PROFILES: dict[str, MetricProfile] = {
         (("duration", "latency", "ping", "response_time", "timeleft")),
         _DURATIONS,
     ),
-    "uptime": _profile("s", "duration", precision=0),
+    "uptime": _profile(device_class="uptime", value_kind=VALUE_UPTIME),
     # Sensor readings.
     **dict.fromkeys(
         ("nvme_temp_sensor", "nvme_temperature", "smart_temperature", "temperature"),
@@ -220,21 +228,51 @@ def resolve_profile(
         return ResolvedProfile(
             unit=profile.unit if profile else None,
             device_class=profile.device_class if profile else None,
-            state_class=STATE_TOTAL_INCREASING,
+            state_class=_state_class(profile, STATE_TOTAL_INCREASING),
             precision=profile.precision if profile else None,
+            value_kind=profile.value_kind if profile else VALUE_NUMBER,
         )
 
     if cumulative:
         return ResolvedProfile(
             unit=profile.rate_unit if profile else None,
             device_class=profile.rate_device_class if profile else None,
-            state_class=STATE_MEASUREMENT,
+            state_class=_state_class(profile, STATE_MEASUREMENT),
             precision=profile.precision if profile else None,
+            value_kind=profile.value_kind if profile else VALUE_NUMBER,
         )
 
     return ResolvedProfile(
         unit=profile.unit if profile else None,
         device_class=profile.device_class if profile else None,
-        state_class=STATE_MEASUREMENT,
+        state_class=_state_class(profile, STATE_MEASUREMENT),
         precision=profile.precision if profile else None,
+        value_kind=profile.value_kind if profile else VALUE_NUMBER,
     )
+
+
+def _state_class(profile: MetricProfile | None, default: str) -> str | None:
+    """Non-numeric values such as uptime cannot carry a state class."""
+    if profile is not None and profile.value_kind != VALUE_NUMBER:
+        return None
+    return default
+
+
+def render_value(
+    profile: ResolvedProfile, value: float, timestamp: float, *, now: datetime
+) -> float | datetime | None:
+    """Turn a raw collectd value into the value a sensor should report.
+
+    collectd publishes uptime as the number of seconds since boot, while Home
+    Assistant's ``uptime`` device class expects the moment of the last restart.
+    The sample timestamp is used as the reference so the result stays stable
+    regardless of MQTT delivery latency.
+    """
+    if profile.value_kind != VALUE_UPTIME:
+        return value
+
+    reference = timestamp if timestamp > 0 else now.timestamp()
+    try:
+        return datetime.fromtimestamp(reference - value, tz=UTC)
+    except OverflowError, OSError, ValueError:
+        return None

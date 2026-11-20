@@ -196,7 +196,13 @@ async def test_custom_topic_prefix(hass: HomeAssistant, mqtt, make_entry) -> Non
 
     mqtt.deliver("site/metrics/router/uptime/uptime", "1763600000.123:123456")
     await _flush(hass)
-    assert _state(hass, "sensor.router_uptime").state == "123456.0"
+
+    state = _state(hass, "sensor.router_uptime")
+    started = dt_util.utc_from_timestamp(1763600000.123 - 123456)
+    assert state.state == started.isoformat(timespec="seconds")
+    assert state.attributes["device_class"] == "uptime"
+    assert "unit_of_measurement" not in state.attributes
+    assert "state_class" not in state.attributes
 
 
 async def test_store_rates_disabled_marks_counters_as_totals(

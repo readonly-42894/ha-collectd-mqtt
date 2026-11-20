@@ -153,7 +153,8 @@ df-*/df_complex-*        # 所有文件系统用量
 | 字节 | `memory`, `df_complex`, `ps_rss` | `B` / data_size |
 | 字节速率 | `if_octets`, `disk_octets` | `B/s` / data_rate |
 | 事件速率 | `if_packets`, `disk_ops`, `irq` | 无单位 |
-| 时间 | `uptime`, `latency`, `response_time` | `s` / duration |
+| 时间 | `latency`, `response_time` | `s` / duration |
+| 启动时间 | `uptime` | 无单位 / uptime（值为最后一次启动时刻） |
 | 温度 / 风扇 | `temperature`, `fanspeed` | `°C` / `rpm` |
 | 电学与频率 | `voltage`, `current`, `power`, `energy_wh`, `frequency` | V / A / W / Wh / Hz |
 | 湿度 | `humidity` | `%` / humidity |
@@ -161,6 +162,8 @@ df-*/df_complex-*        # 所有文件系统用量
 未收录的类型仍然会创建实体，只是不带单位，并且只在首次出现时记一条 debug 日志。`StoreRates` 关闭时，累计型指标改用原始单位并标记为 `total_increasing`，便于长期统计。
 
 > `cpu` 类型在 collectd 里是 jiffies/s，不是百分比；百分比指标需要 collectd 的 `cpu` 插件打开 `ReportPercent`，此时类型为 `percent`。
+>
+> collectd 发布的是启动后经过的秒数，集成会把它换算成设备最后一次启动的时间点，并使用 Home Assistant 的 `uptime` device class。该实体没有单位和 state class；主机重启后状态会更新，长期统计也会随之重新开始。
 
 ## 仪表盘示例
 

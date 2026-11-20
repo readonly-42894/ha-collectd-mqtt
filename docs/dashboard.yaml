@@ -24,7 +24,7 @@ views:
           - entity: sensor.router_memory_used
             name: 已用内存
           - entity: sensor.router_uptime
-            name: 运行时间
+            name: 最后一次启动
 
       - type: history-graph
         title: 网络吞吐（6 小时）
