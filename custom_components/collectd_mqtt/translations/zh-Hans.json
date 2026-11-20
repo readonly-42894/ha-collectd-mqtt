@@ -30,7 +30,7 @@
     "step": {
       "init": {
         "title": "collectd MQTT 选项",
-        "description": "过滤条件使用 glob 通配符，分别匹配主机名和 `<plugin>[-<plugin_instance>]/<type>[-<type_instance>]`。",
+        "description": "过滤条件使用 glob 通配符，分别匹配主机名和 `plugin[-plugin_instance]/type[-type_instance]` 指标键。",
         "data": {
           "topic_prefix": "主题前缀",
           "hosts": "主机",

@@ -30,7 +30,7 @@
     "step": {
       "init": {
         "title": "collectd MQTT options",
-        "description": "Filters use glob patterns and are matched against the host name and `<plugin>[-<plugin_instance>]/<type>[-<type_instance>]`.",
+        "description": "Filters use glob patterns and are matched against the host name and the `plugin[-plugin_instance]/type[-type_instance]` metric key.",
         "data": {
           "topic_prefix": "Topic prefix",
           "hosts": "Hosts",
