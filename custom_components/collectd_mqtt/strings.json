@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to collectd",
+        "description": "Enter the topic prefix used by collectd's mqtt plugin (the `Prefix` option, default `collectd`).",
+        "data": {
+          "topic_prefix": "Topic prefix"
+        }
+      },
+      "no_data": {
+        "title": "No metrics received",
+        "description": "No metric was published below `{prefix}/#` while checking. Make sure collectd is running and publishing with the PLAIN format, or add the integration anyway.",
+        "data": {
+          "confirm_without_data": "Add the integration without data"
+        }
+      }
+    },
+    "error": {
+      "invalid_prefix": "The topic prefix must not be empty or contain `#`, `+` or spaces.",
+      "mqtt_not_configured": "The MQTT integration is not configured or not available.",
+      "cannot_connect": "Could not subscribe to the MQTT broker."
+    },
+    "abort": {
+      "already_configured": "The integration is already configured.",
+      "no_data": "No metrics were received, the integration was not added."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "collectd MQTT options",
+        "description": "Filters use redirect glob patterns and are matched against the host name and `<plugin>[-<plugin_instance>]/<type>[-<type_instance>]`.",
+        "data": {
+          "topic_prefix": "Topic prefix",
+          "hosts": "Hosts",
+          "include": "Include metrics",
+          "exclude": "Exclude metrics",
+          "store_rates": "Values are per-second rates",
+          "stale_after": "Mark unavailable after"
+        },
+        "data_description": {
+          "topic_prefix": "Topic prefix used by collectd's mqtt plugin.",
+          "hosts": "One glob per line. Empty means every host.",
+          "include": "One glob per line. Empty means every metric.",
+          "exclude": "One glob per line. Takes precedence over include.",
+          "store_rates": "collectd's StoreRates option. Disable it to treat counters as totals.",
+          "stale_after": "Seconds without a value before the sensor becomes unavailable."
+        }
+      }
+    }
+  }
+}

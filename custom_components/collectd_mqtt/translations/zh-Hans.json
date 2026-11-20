@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "连接 collectd",
+        "description": "填写 collectd mqtt 插件使用的主题前缀（`Prefix` 选项，默认 `collectd`）。",
+        "data": {
+          "topic_prefix": "主题前缀"
+        }
+      },
+      "no_data": {
+        "title": "未收到指标",
+        "description": "检查期间 `{prefix}/#` 下没有收到任何指标。请确认 collectd 正在运行并使用 PLAIN 格式发布数据，或仍然添加此集成。",
+        "data": {
+          "confirm_without_data": "仍然添加集成"
+        }
+      }
+    },
+    "error": {
+      "invalid_prefix": "主题前缀不能为空，也不能包含 `#`、`+` 或空格。",
+      "mqtt_not_configured": "MQTT 集成尚未配置或当前不可用。",
+      "cannot_connect": "无法订阅 MQTT broker。"
+    },
+    "abort": {
+      "already_configured": "此集成已经配置。",
+      "no_data": "没有收到指标，未添加集成。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "collectd MQTT 选项",
+        "description": "过滤条件使用 glob 通配符，分别匹配主机名和 `<plugin>[-<plugin_instance>]/<type>[-<type_instance>]`。",
+        "data": {
+          "topic_prefix": "主题前缀",
+          "hosts": "主机",
+          "include": "包含的指标",
+          "exclude": "排除的指标",
+          "store_rates": "数值为每秒速率",
+          "stale_after": "超时后置为不可用"
+        },
+        "data_description": {
+          "topic_prefix": "collectd mqtt 插件使用的主题前缀。",
+          "hosts": "每行一个 glob，留空表示所有主机。",
+          "include": "每行一个 glob，留空表示所有指标。",
+          "exclude": "每行一个 glob，优先于 include。",
+          "store_rates": "对应 collectd 的 StoreRates 选项。关闭后按累计值处理计数器。",
+          "stale_after": "多少秒没有新数值后，传感器变为不可用。"
+        }
+      }
+    }
+  }
+}
