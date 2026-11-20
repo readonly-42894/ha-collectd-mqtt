@@ -12,7 +12,6 @@ async def async_setup_entry(
     hass: HomeAssistant,
     entry: CollectdMqttConfigEntry,
     async_add_entities: AddEntitiesCallback,
-) -> bool:
+) -> None:
     """Hand the entity adder to the collector; entities appear as data arrives."""
     entry.runtime_data.async_set_entity_adder(async_add_entities)
-    return True
