@@ -118,6 +118,14 @@ def test_parse_payload_accepts_bytes() -> None:
     assert parsed.values == (42.0,)
 
 
+def test_parse_payload_ignores_trailing_nul() -> None:
+    """collectd publishes the NUL-terminated PLAIN buffer as the payload."""
+    parsed = parse_payload(b"1763600000.123:1.5:2.5\x00")
+    assert parsed is not None
+    assert parsed.timestamp == pytest.approx(1763600000.123)
+    assert parsed.values == (1.5, 2.5)
+
+
 def test_metric_key_canonical_and_unique_id() -> None:
     """Filters use the instance-aware form, entities use a stable identity."""
     key = MetricKey("router", "interface", "eth0", "if_octets", "")

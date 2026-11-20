@@ -96,6 +96,9 @@ def parse_payload(payload: bytes | str) -> ParsedPayload | None:
     else:
         text = payload
     text = text.strip()
+    # collectd's mqtt plugin sends the NUL-terminated buffer that backs the
+    # PLAIN value list, so real payloads carry a trailing NUL byte.
+    text = text.rstrip("\x00").strip()
     if not text:
         return None
     # Notifications are plain text and other producers may publish JSON; both
