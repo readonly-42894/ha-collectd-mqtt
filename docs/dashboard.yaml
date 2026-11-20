@@ -1,0 +1,57 @@
+# collectd MQTT 仪表盘示例
+#
+# 把下面内容粘贴到「编辑仪表盘 → 原始配置编辑器」，
+# 或作为 YAML 模式的视图。实体 ID 假设主机名为 router；
+# 请按实际的 host 与网卡、磁盘名称替换。
+
+title: collectd
+views:
+  - title: 概览
+    path: collectd
+    icon: mdi:chart-line
+    cards:
+      - type: entities
+        title: 系统指标
+        entities:
+          - entity: sensor.router_load_shortterm
+            name: 1 分钟平均负载
+          - entity: sensor.router_load_midterm
+            name: 5 分钟平均负载
+          - entity: sensor.router_cpu_0_user
+            name: CPU 0 用户态
+          - entity: sensor.router_cpu_0_system
+            name: CPU 0 内核态
+          - entity: sensor.router_memory_used
+            name: 已用内存
+          - entity: sensor.router_uptime
+            name: 运行时间
+
+      - type: history-graph
+        title: 网络吞吐（6 小时）
+        hours_to_show: 6
+        entities:
+          - entity: sensor.router_interface_eth0_rx
+            name: 接收
+          - entity: sensor.router_interface_eth0_tx
+            name: 发送
+
+      - type: statistics-graph
+        title: 根分区占用（30 天）
+        chart_type: line
+        days_to_show: 30
+        stat_types:
+          - mean
+        entities:
+          - entity: sensor.router_df_root_used
+
+      - type: statistics-graph
+        title: 磁盘吞吐（7 天）
+        chart_type: line
+        days_to_show: 7
+        stat_types:
+          - mean
+        entities:
+          - entity: sensor.router_disk_sda_read
+            name: 读取
+          - entity: sensor.router_disk_sda_write
+            name: 写入
