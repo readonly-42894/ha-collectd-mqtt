@@ -36,6 +36,11 @@ from custom_components.collectd_mqtt.parser import MetricKey
             "Disk sda Read",
         ),
         (
+            MetricKey("router", "df", "root", "percent_bytes", "used"),
+            "value",
+            "DF root Percent Used",
+        ),
+        (
             MetricKey("router", "thermal", "0", "temperature", ""),
             "value",
             "Thermal 0 Temperature",

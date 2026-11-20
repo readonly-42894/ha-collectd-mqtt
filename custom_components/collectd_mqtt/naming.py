@@ -20,6 +20,8 @@ PLUGIN_LABELS: dict[str, str] = {
 }
 
 TYPE_LABELS: dict[str, str] = {
+    "percent": "Percent",
+    "percent_bytes": "Percent",
     "if_octets": "Octets",
     "if_packets": "Packets",
     "ps_state": "State",
@@ -29,8 +31,8 @@ TYPE_LABELS: dict[str, str] = {
 
 # Types that repeat the plugin name or add nothing to the entity name.
 OMITTED_TYPES: dict[str, frozenset[str]] = {
-    "cpu": frozenset({"cpu", "percent"}),
-    "df": frozenset({"df", "df_complex", "df_inodes", "percent_bytes"}),
+    "cpu": frozenset({"cpu"}),
+    "df": frozenset({"df", "df_complex", "df_inodes"}),
     "disk": frozenset(
         {
             "disk_merged",
@@ -74,6 +76,11 @@ def _label(value: str) -> str:
     return value.replace("_", " ").title()
 
 
+def type_label(type_name: str) -> str:
+    """Return the display label for a collectd type."""
+    return TYPE_LABELS.get(type_name, _label(type_name))
+
+
 def entity_name(key: MetricKey, dsname: str) -> str:
     """Build the entity name for one data source of a metric."""
     parts = [PLUGIN_LABELS.get(key.plugin, _label(key.plugin))]
@@ -82,7 +89,7 @@ def entity_name(key: MetricKey, dsname: str) -> str:
 
     omitted = OMITTED_TYPES.get(key.plugin, frozenset())
     if key.type != key.plugin and key.type not in omitted:
-        parts.append(TYPE_LABELS.get(key.type, _label(key.type)))
+        parts.append(type_label(key.type))
 
     if key.type_instance:
         parts.append(INSTANCE_LABELS.get(key.type_instance, _label(key.type_instance)))
