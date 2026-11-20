@@ -31,9 +31,44 @@ from custom_components.collectd_mqtt.parser import MetricKey
             "Interface eth0 TX",
         ),
         (
-            MetricKey("router", "disk", "sda", "disk_ops", ""),
+            MetricKey("router", "interface", "eth0", "if_packets", ""),
+            "rx",
+            "Interface eth0 Packets RX",
+        ),
+        (
+            MetricKey("router", "interface", "eth0", "if_errors", ""),
+            "tx",
+            "Interface eth0 Errors TX",
+        ),
+        (
+            MetricKey("router", "interface", "eth0", "if_dropped", ""),
+            "rx",
+            "Interface eth0 Dropped RX",
+        ),
+        (
+            MetricKey("router", "disk", "sda", "disk_octets", ""),
             "read",
             "Disk sda Read",
+        ),
+        (
+            MetricKey("router", "disk", "sda", "disk_ops", ""),
+            "read",
+            "Disk sda Ops Read",
+        ),
+        (
+            MetricKey("router", "disk", "sda", "disk_time", ""),
+            "write",
+            "Disk sda Time Write",
+        ),
+        (
+            MetricKey("router", "df", "root", "df_inodes", "used"),
+            "value",
+            "DF root Inodes Used",
+        ),
+        (
+            MetricKey("router", "df", "root", "df_inodes", ""),
+            "inodes",
+            "DF root Inodes",
         ),
         (
             MetricKey("router", "df", "root", "percent_bytes", "used"),
@@ -62,6 +97,15 @@ def test_data_source_name_is_not_repeated() -> None:
     """A data source that equals the type instance is not appended twice."""
     key = MetricKey("router", "df", "root", "df_complex", "used")
     assert entity_name(key, "used") == "DF root Used"
+
+
+def test_family_types_keep_distinct_names() -> None:
+    """Types of one family that share data source names stay distinguishable."""
+    keys = [
+        MetricKey("router", "interface", "eth0", type_name, "")
+        for type_name in ("if_octets", "if_packets", "if_errors", "if_dropped")
+    ]
+    assert len({entity_name(key, "rx") for key in keys}) == len(keys)
 
 
 def test_unique_id_is_stable_and_prefix_free() -> None:

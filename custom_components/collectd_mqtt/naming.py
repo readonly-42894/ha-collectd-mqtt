@@ -24,33 +24,30 @@ TYPE_LABELS: dict[str, str] = {
     "percent_bytes": "Percent",
     "if_octets": "Octets",
     "if_packets": "Packets",
+    "if_errors": "Errors",
+    "if_dropped": "Dropped",
+    "if_collisions": "Collisions",
+    "if_multicast": "Multicast",
+    "disk_ops": "Ops",
+    "disk_time": "Time",
+    "disk_merged": "Merged",
+    "df_inodes": "Inodes",
     "ps_state": "State",
     "ps_count": "Count",
     "ps_cputime": "CPU Time",
 }
 
 # Types that repeat the plugin name or add nothing to the entity name.
+#
+# Only the primary type of a family may drop its label: the interface, disk
+# and df families share the data source names rx/tx and read/write, so giving
+# the label up for several types of the same family makes entity names depend
+# on which message arrives first.
 OMITTED_TYPES: dict[str, frozenset[str]] = {
     "cpu": frozenset({"cpu"}),
-    "df": frozenset({"df", "df_complex", "df_inodes"}),
-    "disk": frozenset(
-        {
-            "disk_merged",
-            "disk_octets",
-            "disk_ops",
-            "disk_time",
-        }
-    ),
-    "interface": frozenset(
-        {
-            "if_collisions",
-            "if_dropped",
-            "if_errors",
-            "if_multicast",
-            "if_octets",
-            "if_packets",
-        }
-    ),
+    "df": frozenset({"df_complex"}),
+    "disk": frozenset({"disk_octets"}),
+    "interface": frozenset({"if_octets"}),
     "load": frozenset({"load"}),
     "memory": frozenset({"memory"}),
     "swap": frozenset({"swap", "swap_io"}),
@@ -94,7 +91,15 @@ def entity_name(key: MetricKey, dsname: str) -> str:
     if key.type_instance:
         parts.append(INSTANCE_LABELS.get(key.type_instance, _label(key.type_instance)))
 
-    if dsname and dsname != "value" and dsname != key.type_instance:
+    # A data source that only repeats the type or the type instance adds no
+    # information, e.g. df_inodes publishes an "inodes" data source.
+    if (
+        dsname
+        and dsname != "value"
+        and dsname != key.type_instance
+        and dsname != key.type
+        and not key.type.endswith(f"_{dsname}")
+    ):
         parts.append(DS_LABELS.get(dsname, _label(dsname)))
 
     return " ".join(parts)

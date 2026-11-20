@@ -117,6 +117,8 @@ df-*/df_complex-*        # 所有文件系统用量
 
 实体名由 `plugin`、`plugin_instance`、`type`、`type_instance` 和数据源名称拼成：众所周知、会重复的 `type` 会被省略，值为 `value` 的单值数据源不再重复。
 
+每个家族只有主类型（`if_octets`、`disk_octets`、`df_complex`）省略 `type`。与主类型共用数据源名的其它类型（`if_packets`、`if_errors`、`if_dropped`、`disk_ops`、`df_inodes` 等）保留类型标签，因此实体名不依赖消息到达顺序。
+
 | 主题 | 数据源 | 实体名 |
 | --- | --- | --- |
 | `cpu-0/cpu-user` | `value` | CPU 0 User |
@@ -125,7 +127,10 @@ df-*/df_complex-*        # 所有文件系统用量
 | `df-root/df_complex-used` | `value` | DF root Used |
 | `interface-eth0/if_octets` | `rx` | Interface eth0 RX |
 | `interface-eth0/if_octets` | `tx` | Interface eth0 TX |
-| `disk-sda/disk_ops` | `read` | Disk sda Read |
+| `interface-eth0/if_packets` | `rx` | Interface eth0 Packets RX |
+| `interface-eth0/if_dropped` | `rx` | Interface eth0 Dropped RX |
+| `disk-sda/disk_octets` | `read` | Disk sda Read |
+| `disk-sda/disk_ops` | `read` | Disk sda Ops Read |
 | `thermal-0/temperature` | `value` | Thermal 0 Temperature |
 
 每个 host 对应一个设备（Manufacturer 为 `collectd`），实体 ID 形如 `sensor.router_cpu_0_user`。
