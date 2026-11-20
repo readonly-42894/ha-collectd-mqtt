@@ -63,6 +63,8 @@ async def test_creates_sensor_from_plain_payload(
 
     devices = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
     assert [device.name for device in devices] == ["router"]
+    assert devices[0].manufacturer == "collectd"
+    assert devices[0].model == "collectd metrics"
     assert entry.state is ConfigEntryState.LOADED
 
 
@@ -296,8 +298,20 @@ async def test_float_formatting(hass: HomeAssistant, mqtt, make_entry) -> None:
             "1763600000.123:3",
             "sensor.router_processes_state_running",
         ),
+        (
+            {CONF_INCLUDE: ["df-*/df_complex-*"]},
+            "collectd/router/df-root/df_complex-used",
+            "1763600000.123:734003200",
+            "sensor.router_df_root_used",
+        ),
+        (
+            {CONF_INCLUDE: ["thermal-*/temperature"]},
+            "collectd/router/thermal-0/temperature",
+            "1763600000.123:42.5",
+            "sensor.router_thermal_0_temperature",
+        ),
     ],
-    ids=["percent", "process-state"],
+    ids=["percent", "process-state", "df", "thermal"],
 )
 async def test_representative_metrics(
     hass: HomeAssistant,
