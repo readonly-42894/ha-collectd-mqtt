@@ -48,7 +48,7 @@ docs/dashboard.yaml 仪表盘示例
   ```
 
 - `Co-Authored-By` 写实际运行的 Agent 客户端及版本（`opencode --version`），不写邮箱。
-- 提交由全局 SSH 签名自动完成（`commit.gpgsign=true`、`gpg.format=ssh`），不要关闭签名。
+- 全局开启了 SSH 提交签名（`commit.gpgsign=true`、`gpg.format=ssh`）；若本机缺少可用的签名密钥，提交会是无签名状态，与同级仓库一致，不要为此修改全局 git 配置。
 - 任务闭环（实现完成 + 验证通过）后直接提交，无需先询问用户。
 - **未获用户明确要求时，不要执行 `git push`、创建或推送标签、创建 release 或触发发布**。提交是本地整理，推送与发布由用户决定。
 - 发布时单独提交 `chore: bump integration version to X.Y.Z`，只改 `manifest.json` 的 `version`，与轻量标签 `vX.Y.Z` 保持一致；如本机 `tag.gpgSign=true`，用 `git -c tag.gpgSign=false tag vX.Y.Z` 避免签名编辑器。
