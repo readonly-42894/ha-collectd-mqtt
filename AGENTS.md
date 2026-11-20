@@ -7,7 +7,7 @@
 Home Assistant 自定义集成，订阅 collectd MQTT 插件发布的指标并自动创建 sensor 实体。
 
 - 规范仓库：<https://git.o0kam1.dev/HumanlessCode/ha-collectd-mqtt>（即 `origin`）。
-- GitHub 仓库 <https://github.com/duzhaokun123/ha-collectd-mqtt> 按同级仓库的惯例作为镜像：代码改动提交到规范仓库；Marketplace/HACS 目录要求 GitHub 公共仓库与正式 release。
+- GitHub 仓库 <https://github.com/readonly-42894/ha-collectd-mqtt> 按同级仓库的惯例作为镜像：代码改动提交到规范仓库；Marketplace/HACS 目录要求 GitHub 公共仓库与正式 release。
 - 只支持 collectd 的 **PLAIN** payload（`时间戳:值0[:值1...]`）。MQTT 插件的 JSON 格式仅存在于 collectd `main`，任何已发布版本（5.12.0、6.0.0-rc0）都没有该选项，因此集成不解析 JSON。
 - 集成复用 Home Assistant 已配置的 MQTT 连接（`homeassistant.components.mqtt.async_subscribe`），不单独保存 broker 凭据。
 

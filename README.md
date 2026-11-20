@@ -73,7 +73,7 @@ LoadPlugin mqtt
 ### HACS
 
 1. HACS → 集成 → 右上角菜单 → **自定义仓库**。
-2. 添加 `https://github.com/duzhaokun123/ha-collectd-mqtt`，类别选 **Integration**。
+2. 添加 `https://github.com/readonly-42894/ha-collectd-mqtt`，类别选 **Integration**。
 3. 搜索 “collectd MQTT” 并安装，然后重启 Home Assistant。
 
 ### 手动安装
